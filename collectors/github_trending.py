@@ -29,12 +29,10 @@ class GitHubTrendingCollector(BaseCollector):
 
             for repo in data.get("items", [])[:MAX_PER_SOURCE["github"]]:
                 desc = repo.get("description") or ""
-                # 截取摘要到约 400 字
-                summary = desc[:400]
                 lang = repo.get("language") or ""
                 stars = repo.get("stargazers_count", 0)
-                if lang:
-                    summary = f"[{lang}] ⭐{stars} | {summary}"[:400]
+                prefix = f"[{lang}] " if lang else ""
+                summary = f"{prefix}⭐{stars} | {desc}"[:400]
 
                 articles.append(Article(
                     title=repo.get("full_name", ""),
