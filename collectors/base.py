@@ -1,4 +1,5 @@
-from dataclasses import dataclass, field
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import List
 import requests
 from config import REQUEST_TIMEOUT
@@ -13,12 +14,13 @@ class Article:
     category: str  # paper / project / news / tool
 
 
-class BaseCollector:
+class BaseCollector(ABC):
     name: str = "base"
     category: str = "news"
 
+    @abstractmethod
     def collect(self) -> List[Article]:
-        raise NotImplementedError
+        ...
 
     def _get(self, url: str, headers: dict = None) -> requests.Response:
         default_headers = {"User-Agent": "AI-News-Digest/1.0"}
