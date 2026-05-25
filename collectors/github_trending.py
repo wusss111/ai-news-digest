@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta, timezone
+import logging
 from typing import List
-import requests
 from config import GITHUB_TOKEN, MAX_PER_SOURCE
 from collectors.base import Article, BaseCollector
+
+logger = logging.getLogger(__name__)
 
 
 class GitHubTrendingCollector(BaseCollector):
@@ -12,13 +14,15 @@ class GitHubTrendingCollector(BaseCollector):
     def collect(self) -> List[Article]:
         articles = []
         try:
+            if not GITHUB_TOKEN:
+                logger.warning("GITHUB_TOKEN 未设置，API 限流为 60次/小时")
+
             headers = {
                 "Accept": "application/vnd.github+json",
             }
             if GITHUB_TOKEN:
                 headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
 
-            # 搜索最近一周创建的 AI/ML 相关仓库，按 stars 排序
             since = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%d")
             query = f"topic:machine-learning+created:>{since}"
             url = f"https://api.github.com/search/repositories?q={query}&sort=stars&order=desc&per_page={MAX_PER_SOURCE['github']}"
@@ -27,7 +31,7 @@ class GitHubTrendingCollector(BaseCollector):
             resp.raise_for_status()
             data = resp.json()
 
-            for repo in data.get("items", [])[:MAX_PER_SOURCE["github"]]:
+            for repo in data.get("items", []):
                 desc = repo.get("description") or ""
                 lang = repo.get("language") or ""
                 stars = repo.get("stargazers_count", 0)
@@ -41,6 +45,6 @@ class GitHubTrendingCollector(BaseCollector):
                     summary=summary,
                     category="project",
                 ))
-        except Exception as e:
-            print(f"[GitHub] 采集失败: {e}")
+        except Exception:
+            logger.exception("[GitHub] 采集失败")
         return articles
