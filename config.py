@@ -2,6 +2,7 @@ import os
 
 FEISHU_WEBHOOK_URL = os.environ.get("FEISHU_WEBHOOK_URL", "")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")
 
 # 每条来源最多抓取条数
 MAX_PER_SOURCE = {

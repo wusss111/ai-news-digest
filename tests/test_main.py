@@ -18,6 +18,7 @@ def test_run_with_articles():
          patch("main.ProductHuntCollector") as mock_ph, \
          patch("main.JiqizhixinCollector") as mock_jz, \
          patch("main.AIBlogsCollector") as mock_bl, \
+         patch("main.summarize") as mock_summarize, \
          patch("main.Formatter") as mock_fmt, \
          patch("main.FeishuSender") as mock_sender, \
          patch("main.FEISHU_WEBHOOK_URL", "https://test.com"):
@@ -29,6 +30,7 @@ def test_run_with_articles():
         mock_ph.return_value.collect.return_value = []
         mock_jz.return_value.collect.return_value = []
         mock_bl.return_value.collect.return_value = []
+        mock_summarize.side_effect = lambda articles: articles
         mock_fmt.build_card.return_value = {"msg_type": "interactive"}
         mock_sender.return_value.send.return_value = True
 

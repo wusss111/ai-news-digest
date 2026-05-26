@@ -12,6 +12,7 @@ from collectors.jiqizhixin import JiqizhixinCollector
 from collectors.ai_blogs import AIBlogsCollector
 from formatter import Formatter
 from feishu_sender import FeishuSender
+from summarizer import summarize
 from config import FEISHU_WEBHOOK_URL
 
 logging.basicConfig(
@@ -55,6 +56,7 @@ def run() -> bool:
         return False
 
     logger.info("共获取 %d 条文章（去重前）", len(all_articles))
+    all_articles = summarize(all_articles)
     card = Formatter.build_card(all_articles)
 
     if not card:
